@@ -1,4 +1,6 @@
 export interface Shift {
+  employee: any;
+  username: any;
   shift_ID: number;
   startDate: string;
   endDate: string;

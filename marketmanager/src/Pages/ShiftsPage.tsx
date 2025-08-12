@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { Box, Button, Stack } from "@mui/material";
 import moment from "moment";
-import { fetchAllShifts } from "../Fetch/FetchAllShifts";
 import { fetchShiftsByRange } from "../Fetch/FetchShiftsByRange";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
@@ -32,7 +31,7 @@ const redTheme = {
       "&.Mui-focused fieldset": {
         borderColor: "#C62828",
       },
-      backgroundColor: "rgba(198, 40, 40, 0.1)",
+      backgroundColor: "rgba(255, 255, 255, 0.9)",
     },
     "& .MuiInputLabel-root": {
       color: "#C62828",
@@ -42,6 +41,11 @@ const redTheme = {
       color: "#C62828",
       fontWeight: "bold",
     },
+    "& .MuiOutlinedInput-input": {
+      backgroundColor: "rgba(255, 255, 255, 0.9)",
+    },
+    backgroundColor: "rgba(255, 255, 255, 0.9)",
+    width: "100%",
   },
 };
 
@@ -62,54 +66,16 @@ const columns: GridColDef[] = [
 
 const ShiftsDataGrid = () => {
   const [shifts, setShifts] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [startDate, setStartDate] = useState<moment.Moment | null>(null);
   const [endDate, setEndDate] = useState<moment.Moment | null>(null);
-  const [page, setPage] = useState(1);
-  const [totalItems, setTotalItems] = useState(0);
-  const pageSize = 5;
-
-  const fetchAllShiftsData = async (currentPage = 1) => {
-    setLoading(true);
-    try {
-      const data = await fetchAllShifts(currentPage, pageSize);
-
-      // DEBUG: Visualizza i dati ricevuti
-      console.log("Dati ricevuti:", data);
-
-      if (!Array.isArray(data)) {
-        throw new Error("L'API non ha restituito un array");
-      }
-
-      const formattedData = data.map((shift) => ({
-        ...shift,
-        startDateFormatted: moment(shift.startDate).format("DD/MM/YYYY HH:mm"),
-        endDateFormatted: moment(shift.endDate).format("DD/MM/YYYY HH:mm"),
-      }));
-
-      setShifts(formattedData);
-      setTotalItems(data.length); // Modifica se hai paginazione lato server
-    } catch (err) {
-      console.error("Errore nel fetch dei turni:", err);
-      setShifts([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchAllShiftsData();
-  }, []);
-
-  const handleLoadMore = () => {
-    fetchAllShiftsData(page + 1);
-  };
 
   const handleFilter = async () => {
     if (!startDate || !endDate) {
       alert("Seleziona entrambe le date");
       return;
     }
+
     setLoading(true);
     try {
       const start = startDate.startOf("day").format("YYYY-MM-DDTHH:mm:ss");
@@ -139,7 +105,7 @@ const ShiftsDataGrid = () => {
   const handleReset = () => {
     setStartDate(null);
     setEndDate(null);
-    fetchAllShiftsData(1);
+    setShifts([]);
   };
 
   return (
@@ -150,6 +116,7 @@ const ShiftsDataGrid = () => {
             label="Data Inizio"
             value={startDate}
             onChange={setStartDate}
+            sx={{ width: 220 }}
             slotProps={{
               textField: {
                 variant: "outlined",
@@ -162,6 +129,7 @@ const ShiftsDataGrid = () => {
             label="Data Fine"
             value={endDate}
             onChange={setEndDate}
+            sx={{ width: 220 }}
             slotProps={{
               textField: {
                 variant: "outlined",
@@ -197,17 +165,6 @@ const ShiftsDataGrid = () => {
           hideFooterPagination
         />
       </Box>
-      <Box sx={{ display: "flex", justifyContent: "center" }}>
-        <Button
-          variant="contained"
-          onClick={handleLoadMore}
-          disabled={shifts.length >= totalItems || loading}
-          sx={redTheme.button}
-          size="large"
-        >
-          Carica altri {pageSize} turni
-        </Button>
-      </Box>
       <Box
         sx={{
           textAlign: "center",
@@ -216,7 +173,7 @@ const ShiftsDataGrid = () => {
           fontWeight: "bold",
         }}
       >
-        Visualizzati {shifts.length} di {totalItems} turni totali
+        Visualizzati {shifts.length} turni
       </Box>
     </Box>
   );
