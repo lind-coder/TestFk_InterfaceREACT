@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { Box, Button, Stack } from "@mui/material";
 import moment from "moment";
@@ -50,18 +50,18 @@ const redTheme = {
 };
 
 const columns: GridColDef[] = [
-  { field: "shift_ID", headerName: "ID Turno", width: 100 },
+  { field: "shift_ID", headerName: "ID Turno", width: 200 },
   {
     field: "startDateFormatted",
     headerName: "Inizio",
-    width: 200,
+    width: 400,
   },
   {
     field: "endDateFormatted",
     headerName: "Fine",
-    width: 200,
+    width: 400,
   },
-  { field: "username", headerName: "Username Dipendente", width: 200 },
+  { field: "username", headerName: "Username Dipendente", width: 400 },
 ];
 
 const ShiftsDataGrid = () => {
@@ -164,16 +164,6 @@ const ShiftsDataGrid = () => {
           loading={loading}
           hideFooterPagination
         />
-      </Box>
-      <Box
-        sx={{
-          textAlign: "center",
-          mt: 2,
-          color: "#C62828",
-          fontWeight: "bold",
-        }}
-      >
-        Visualizzati {shifts.length} turni
       </Box>
     </Box>
   );
