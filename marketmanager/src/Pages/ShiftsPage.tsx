@@ -95,6 +95,7 @@ const ShiftsDataGrid = () => {
         <Stack direction="row" spacing={2} sx={{ mb: 3 }}>
           <TextField
             label="ID Dipendente"
+            type="number"
             value={employeeIdState}
             onChange={(e) => setEmployeeIdState(e.target.value)}
             sx={{
