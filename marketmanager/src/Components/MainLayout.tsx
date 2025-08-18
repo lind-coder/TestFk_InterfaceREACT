@@ -4,23 +4,30 @@ import CssBaseline from "@mui/material/CssBaseline";
 import Toolbar from "@mui/material/Toolbar";
 import MyAppBar from "../Components/AppBar";
 import MySidebar from "../Components/MySidebar";
+import { useState, useEffect } from "react";
 
 const drawerWidth = 200;
 
-const MainLayout = () => {
-  const location = useLocation();
+const MainLayout: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [selectedView, setSelectedView] = useState("Welcome");
 
-  const selectedView = (() => {
-    if (location.pathname.includes("/supermarket")) return "Supermarket";
-    if (location.pathname.includes("/employee")) return "Employee";
-    if (location.pathname.includes("/shifts")) return "Shifts";
-    if (location.pathname.includes("/contacts")) return "Contacts";
-
-    return "Welcome";
-  })();
+  // Aggiorna selectedView in base al percorso
+  useEffect(() => {
+    const path = location.pathname;
+    if (path.startsWith("/markets")) setSelectedView("Supermarket");
+    else if (path.startsWith("/market/") && path.includes("/employees"))
+      setSelectedView("Employee");
+    else if (path.startsWith("/employee/")) setSelectedView("Shifts");
+    else if (path.startsWith("/employees")) setSelectedView("Employee");
+    else if (path.startsWith("/shifts")) setSelectedView("Shifts");
+    else if (path.startsWith("/contacts")) setSelectedView("Contacts");
+    else setSelectedView("Welcome");
+  }, [location.pathname]);
 
   const handleSetSelectedView = (view: string) => {
+    setSelectedView(view);
     switch (view) {
       case "Employee":
         navigate("/employees");
@@ -35,7 +42,7 @@ const MainLayout = () => {
         navigate("/contacts");
         break;
       default:
-        navigate("/"); // Welcome
+        navigate("/");
     }
   };
 

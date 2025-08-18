@@ -11,6 +11,7 @@ import StoreIcon from "@mui/icons-material/Store";
 import PeopleIcon from "@mui/icons-material/People";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import ContactsIcon from "@mui/icons-material/Contacts";
+import { useNavigate } from "react-router-dom";
 
 interface Props {
   drawerWidth: number;
@@ -19,6 +20,13 @@ interface Props {
 }
 
 const MySidebar = ({ drawerWidth, selectedView, setSelectedView }: Props) => {
+  const navigate = useNavigate();
+
+  const handleNavigation = (view: string, path: string) => {
+    setSelectedView(view);
+    navigate(path);
+  };
+
   return (
     <Box
       sx={{
@@ -33,7 +41,7 @@ const MySidebar = ({ drawerWidth, selectedView, setSelectedView }: Props) => {
       <List sx={{ display: "flex", flexDirection: "column", gap: 2, px: 1 }}>
         <ListItemButton
           selected={selectedView === "Welcome"}
-          onClick={() => setSelectedView("Welcome")}
+          onClick={() => handleNavigation("Welcome", "/")}
           sx={{ py: 2, borderRadius: 2 }}
         >
           <ListItemIcon sx={{ color: "#fff" }}>
@@ -44,7 +52,7 @@ const MySidebar = ({ drawerWidth, selectedView, setSelectedView }: Props) => {
 
         <ListItemButton
           selected={selectedView === "Supermarket"}
-          onClick={() => setSelectedView("Supermarket")}
+          onClick={() => handleNavigation("Supermarket", "/markets")}
           sx={{ py: 2, borderRadius: 2 }}
         >
           <ListItemIcon sx={{ color: "#fff" }}>
@@ -55,7 +63,7 @@ const MySidebar = ({ drawerWidth, selectedView, setSelectedView }: Props) => {
 
         <ListItemButton
           selected={selectedView === "Employee"}
-          onClick={() => setSelectedView("Employee")}
+          onClick={() => handleNavigation("Employee", "/employees")}
           sx={{ py: 2, borderRadius: 2 }}
         >
           <ListItemIcon sx={{ color: "#fff" }}>
@@ -66,7 +74,7 @@ const MySidebar = ({ drawerWidth, selectedView, setSelectedView }: Props) => {
 
         <ListItemButton
           selected={selectedView === "Shifts"}
-          onClick={() => setSelectedView("Shifts")}
+          onClick={() => handleNavigation("Shifts", "/shifts")}
           sx={{ py: 2, borderRadius: 2 }}
         >
           <ListItemIcon sx={{ color: "#fff" }}>
@@ -77,7 +85,7 @@ const MySidebar = ({ drawerWidth, selectedView, setSelectedView }: Props) => {
 
         <ListItemButton
           selected={selectedView === "Contacts"}
-          onClick={() => setSelectedView("Contacts")}
+          onClick={() => handleNavigation("Contacts", "/contacts")}
           sx={{ py: 2, borderRadius: 2 }}
         >
           <ListItemIcon sx={{ color: "#fff" }}>

@@ -3,6 +3,7 @@ import Box from "@mui/material/Box";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { EmployeeWithShifts } from "../Types/EmployeeWithShifts";
 import { getEmployeesWithShifts } from "../Fetch/FetchEmployeeWithShifts";
+import { useNavigate } from "react-router-dom"; // <-- import
 
 const columns: GridColDef[] = [
   { field: "employee_ID", headerName: "ID", width: 90 },
@@ -19,8 +20,7 @@ const columns: GridColDef[] = [
 
 export const EmployeeDataGrid = () => {
   const [employees, setEmployees] = useState<EmployeeWithShifts[]>([]);
-  const [selectedEmployee, setSelectedEmployee] =
-    useState<EmployeeWithShifts | null>(null);
+  const navigate = useNavigate(); // <-- inizializza navigate
 
   useEffect(() => {
     getEmployeesWithShifts()
@@ -38,37 +38,10 @@ export const EmployeeDataGrid = () => {
         columns={columns}
         getRowId={(row) => row.employee_ID}
         pageSizeOptions={[5, 10, 25]}
-        onRowClick={(params) => setSelectedEmployee(params.row)}
+        onRowClick={
+          (params) => navigate(`/employee/${params.row.employee_ID}`) // <-- naviga alla pagina dei turni
+        }
       />
-
-      {selectedEmployee && (
-        <Box mt={2}>
-          <h3>Dettagli Dipendente</h3>
-          <p>
-            <strong>ID:</strong> {selectedEmployee.employee_ID}
-          </p>
-          <p>
-            <strong>Nome:</strong> {selectedEmployee.name}
-          </p>
-          <p>
-            <strong>Cognome:</strong> {selectedEmployee.surname}
-          </p>
-          <p>
-            <strong>Supermercato:</strong>{" "}
-            {selectedEmployee.supermarket?.name || "N/A"}
-          </p>
-
-          <h4>Turni</h4>
-          <ul>
-            {selectedEmployee.shifts.map((shift) => (
-              <li key={shift.shift_ID}>
-                {new Date(shift.startDate).toLocaleString()} -{" "}
-                {new Date(shift.endDate).toLocaleString()}
-              </li>
-            ))}
-          </ul>
-        </Box>
-      )}
     </Box>
   );
 };
