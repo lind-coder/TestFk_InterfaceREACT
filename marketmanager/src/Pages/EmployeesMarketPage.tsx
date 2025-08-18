@@ -56,7 +56,7 @@ export default function MarketEmployeesPage() {
           pageSizeOptions={[5, 10]}
           pagination
           onRowClick={(params: GridRowParams<EmployeeWithShifts>) =>
-            navigate(`/employee/${params.row.employee_ID}`)
+            navigate(`/shifts/${params.row.employee_ID}`)
           }
         />
       </div>

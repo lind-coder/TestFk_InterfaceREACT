@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { Box, Button, Stack, TextField } from "@mui/material";
 import moment from "moment";
@@ -7,100 +7,28 @@ import { fetchShiftsByEmployeeAndRange } from "../Fetch/FetchShiftsByEmployeeAnd
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-
-const redTheme = {
-  button: {
-    backgroundColor: "#C62828",
-    color: "white",
-    "&:hover": {
-      backgroundColor: "#8E0000",
-    },
-    "&.Mui-disabled": {
-      backgroundColor: "rgba(198, 40, 40, 0.5)",
-      color: "white",
-    },
-  },
-  datePicker: {
-    "& .MuiOutlinedInput-root": {
-      "& fieldset": {
-        borderColor: "#C62828",
-        borderWidth: 2,
-      },
-      "&:hover fieldset": {
-        borderColor: "#C62828",
-      },
-      "&.Mui-focused fieldset": {
-        borderColor: "#C62828",
-      },
-      backgroundColor: "rgba(255, 255, 255, 0.9)",
-    },
-    "& .MuiInputLabel-root": {
-      color: "#C62828",
-      fontWeight: "bold",
-    },
-    "& .MuiInputBase-input": {
-      color: "#C62828",
-      fontWeight: "bold",
-    },
-    "& .MuiOutlinedInput-input": {
-      backgroundColor: "rgba(255, 255, 255, 0.9)",
-    },
-    backgroundColor: "rgba(255, 255, 255, 0.9)",
-    width: "100%",
-  },
-  textField: {
-    "& .MuiOutlinedInput-root": {
-      "& fieldset": {
-        borderColor: "#C62828",
-        borderWidth: 2,
-      },
-      "&:hover fieldset": {
-        borderColor: "#C62828",
-      },
-      "&.Mui-focused fieldset": {
-        borderColor: "#C62828",
-      },
-      backgroundColor: "rgba(255, 255, 255, 0.9)",
-    },
-    "& .MuiInputLabel-root": {
-      color: "#C62828",
-      fontWeight: "bold",
-    },
-    "& .MuiInputBase-input": {
-      color: "#C62828",
-      fontWeight: "bold",
-    },
-  },
-};
+import { useParams, useNavigate } from "react-router-dom";
 
 const columns: GridColDef[] = [
   { field: "shift_ID", headerName: "ID Turno", width: 200 },
-  {
-    field: "startDateFormatted",
-    headerName: "Inizio",
-    width: 400,
-  },
-  {
-    field: "endDateFormatted",
-    headerName: "Fine",
-    width: 400,
-  },
+  { field: "startDateFormatted", headerName: "Inizio", width: 400 },
+  { field: "endDateFormatted", headerName: "Fine", width: 400 },
   { field: "username", headerName: "Username Dipendente", width: 400 },
   { field: "employee_ID", headerName: "ID Dipendente", width: 200 },
 ];
 
 const ShiftsDataGrid = () => {
+  const { employeeId } = useParams<{ employeeId?: string }>();
+  const navigate = useNavigate();
+
   const [shifts, setShifts] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [startDate, setStartDate] = useState<moment.Moment | null>(null);
   const [endDate, setEndDate] = useState<moment.Moment | null>(null);
-  const [employeeId, setEmployeeId] = useState<string>("");
+  const [employeeIdState, setEmployeeIdState] = useState<string>("");
 
   const handleFilter = async () => {
-    if (!startDate || !endDate) {
-      alert("Seleziona entrambe le date");
-      return;
-    }
+    if (!startDate || !endDate) return;
 
     setLoading(true);
     try {
@@ -108,13 +36,12 @@ const ShiftsDataGrid = () => {
       const end = endDate.endOf("day").format("YYYY-MM-DDTHH:mm:ss");
 
       let data;
-
-      if (employeeId.trim()) {
-        const employeeIdNum = parseInt(employeeId);
-        if (isNaN(employeeIdNum)) {
-          throw new Error("ID dipendente deve essere un numero valido");
-        }
-        data = await fetchShiftsByEmployeeAndRange(employeeIdNum, start, end);
+      if (employeeIdState.trim()) {
+        data = await fetchShiftsByEmployeeAndRange(
+          parseInt(employeeIdState),
+          start,
+          end
+        );
       } else {
         data = await fetchShiftsByRange(start, end);
       }
@@ -128,33 +55,54 @@ const ShiftsDataGrid = () => {
       setShifts(formattedData);
     } catch (error) {
       console.error("Errore durante il fetch:", error);
-      alert(
-        error instanceof Error
-          ? error.message
-          : "Errore durante il recupero dei dati"
-      );
       setShifts([]);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleReset = () => {
-    setStartDate(null);
-    setEndDate(null);
-    setEmployeeId("");
-    setShifts([]);
-  };
+  // 👉 Auto-popola campi e filtra all'avvio
+  useEffect(() => {
+    const end = moment();
+    const start = moment().subtract(30, "days");
+
+    setStartDate(start);
+    setEndDate(end);
+
+    if (employeeId) {
+      setEmployeeIdState(employeeId);
+    }
+
+    // Lancia il filtro solo quando employeeId è presente
+    if (employeeId) {
+      (async () => {
+        await new Promise((r) => setTimeout(r, 0)); // evita race condition con setState
+        handleFilter();
+      })();
+    }
+  }, [employeeId]);
 
   return (
     <Box sx={{ width: "100%", p: 3 }}>
+      <Button
+        variant="contained"
+        onClick={() => navigate(-1)}
+        sx={{ mb: 2, backgroundColor: "#C62828", color: "white" }}
+      >
+        ← Indietro
+      </Button>
       <LocalizationProvider dateAdapter={AdapterMoment}>
         <Stack direction="row" spacing={2} sx={{ mb: 3 }}>
           <TextField
-            label="ID Dipendente (opzionale)"
-            value={employeeId}
-            onChange={(e) => setEmployeeId(e.target.value)}
-            sx={{ ...redTheme.textField, width: 220 }}
+            label="ID Dipendente"
+            value={employeeIdState}
+            onChange={(e) => setEmployeeIdState(e.target.value)}
+            sx={{
+              width: 220,
+              border: "#C62828",
+              backgroundColor: "white",
+              color: "black",
+            }}
             variant="outlined"
             size="medium"
           />
@@ -162,44 +110,31 @@ const ShiftsDataGrid = () => {
             label="Data Inizio"
             value={startDate}
             onChange={setStartDate}
-            sx={{ width: 220 }}
-            slotProps={{
-              textField: {
-                variant: "outlined",
-                sx: redTheme.datePicker,
-                size: "medium",
-              },
+            sx={{
+              width: 220,
+              border: "#C62828",
+              backgroundColor: "white",
+              color: "black",
             }}
           />
           <DatePicker
             label="Data Fine"
             value={endDate}
             onChange={setEndDate}
-            sx={{ width: 220 }}
-            slotProps={{
-              textField: {
-                variant: "outlined",
-                sx: redTheme.datePicker,
-                size: "medium",
-              },
+            sx={{
+              width: 220,
+              border: "#C62828",
+              backgroundColor: "white",
+              color: "black",
             }}
           />
           <Button
             variant="contained"
             onClick={handleFilter}
-            sx={redTheme.button}
+            sx={{ backgroundColor: "#C62828", color: "white" }}
             size="large"
-            disabled={!startDate || !endDate}
           >
             Filtra
-          </Button>
-          <Button
-            variant="contained"
-            onClick={handleReset}
-            sx={redTheme.button}
-            size="large"
-          >
-            Reset
           </Button>
         </Stack>
       </LocalizationProvider>

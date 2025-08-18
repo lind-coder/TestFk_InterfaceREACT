@@ -4,7 +4,6 @@ import WelcomeScreen from "./Components/WelcomeScreen";
 import MarketsPage from "./Pages/SupermarketPage";
 import MarketEmployeesPage from "./Pages/EmployeesMarketPage";
 import EmployeeDetailPage from "./Pages/EmployeeShiftDetailPage";
-import AllEmployeesPage from "./Pages/AllEmployeePage";
 import ShiftsDataGrid from "./Pages/ShiftsPage";
 import ContactsPage from "./Pages/ContactsPage";
 
@@ -20,7 +19,7 @@ function App() {
             element={<MarketEmployeesPage />}
           />
           <Route path="employee/:employeeId" element={<EmployeeDetailPage />} />
-          <Route path="employees" element={<AllEmployeesPage />} />
+          <Route path="/shifts/:employeeId" element={<ShiftsDataGrid />} />
           <Route path="shifts" element={<ShiftsDataGrid />} />
           <Route path="contacts" element={<ContactsPage />} />
         </Route>
