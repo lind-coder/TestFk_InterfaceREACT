@@ -7,6 +7,7 @@ export interface Shift {
 }
 
 export interface Supermarket {
+  supermarket_ID: number;
   name: string;
 }
 

@@ -12,7 +12,12 @@ export const getEmployeesWithShifts = async (): Promise<
     employee_ID: e.Employee_ID,
     name: e.Name,
     surname: e.Surname,
-    supermarket: e.Supermarket ? { name: e.Supermarket.Name } : null,
+    supermarket: e.Supermarket
+      ? {
+          supermarket_ID: e.Supermarket.Supermarket_ID, // Aggiungi questo campo
+          name: e.Supermarket.Name,
+        }
+      : null,
     shifts: e.Shift
       ? e.Shift.map((s: any) => ({
           shift_ID: s.Shift_ID,
