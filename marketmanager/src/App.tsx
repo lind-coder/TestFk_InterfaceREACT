@@ -19,7 +19,10 @@ function App() {
             element={<MarketEmployeesPage />}
           />
           <Route path="employee/:employeeId" element={<EmployeeDetailPage />} />
-          <Route path="/shifts/:employeeId" element={<ShiftsDataGrid />} />
+          <Route
+            path="/shifts/:marketId/:employeeId"
+            element={<ShiftsDataGrid />}
+          />
           <Route path="shifts" element={<ShiftsDataGrid />} />
           <Route path="contacts" element={<ContactsPage />} />
         </Route>

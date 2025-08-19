@@ -39,7 +39,7 @@ export default function MarketEmployeesPage() {
           backgroundColor: "#C62828",
           color: "white",
           borderRadius: "12px",
-          textTransform: "none", // per evitare maiuscole automatiche di MUI
+          textTransform: "none",
           "&:hover": {
             backgroundColor: "#9b2020",
           },
@@ -56,7 +56,7 @@ export default function MarketEmployeesPage() {
           pageSizeOptions={[5, 10]}
           pagination
           onRowClick={(params: GridRowParams<EmployeeWithShifts>) =>
-            navigate(`/shifts/${params.row.employee_ID}`)
+            navigate(`/shifts/${id}/${params.row.employee_ID}`)
           }
         />
       </div>

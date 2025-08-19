@@ -20,6 +20,7 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import axios from "axios";
 import { Market } from "../Types/Market";
 import { EmployeeWithShifts } from "../Types/EmployeeWithShifts";
+import { useNavigate, useParams } from "react-router-dom";
 
 const redTheme = {
   button: {
@@ -52,17 +53,21 @@ const columns: GridColDef[] = [
 ];
 
 const ShiftsDataGrid = () => {
+  const { marketId: urlMarketId, employeeId: urlEmployeeId } = useParams<{
+    marketId?: string;
+    employeeId?: string;
+  }>();
   const [shifts, setShifts] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [startDate, setStartDate] = useState<moment.Moment | null>(
     moment().subtract(30, "days")
   );
   const [endDate, setEndDate] = useState<moment.Moment | null>(moment());
-  const [employeeId, setEmployeeId] = useState<string>("");
-  const [marketId, setMarketId] = useState<string>("");
-
+  const [marketId, setMarketId] = useState<string>(urlMarketId || "");
+  const [employeeId, setEmployeeId] = useState<string>(urlEmployeeId || "");
   const [markets, setMarkets] = useState<Market[]>([]);
   const [employees, setEmployees] = useState<EmployeeWithShifts[]>([]);
+  const navigate = useNavigate();
 
   // fetch markets + employees
   useEffect(() => {
@@ -71,11 +76,17 @@ const ShiftsDataGrid = () => {
       .then((res) => setMarkets(res.data))
       .catch(() => setMarkets([]));
 
-    // SOSTITUISCI QUESTA PARTE:
     getEmployeesWithShifts()
       .then((data) => setEmployees(data))
       .catch(() => setEmployees([]));
   }, []);
+
+  // Esegui automaticamente il filtro se abbiamo entrambi gli ID dalla URL
+  useEffect(() => {
+    if (urlMarketId && urlEmployeeId && startDate && endDate) {
+      handleFilter();
+    }
+  }, [urlMarketId, urlEmployeeId, startDate, endDate]);
 
   const handleFilter = async () => {
     if (!startDate || !endDate) {
@@ -126,19 +137,36 @@ const ShiftsDataGrid = () => {
     setEmployeeId("");
     setMarketId("");
     setShifts([]);
+    navigate("/shifts");
   };
 
-  // Gestisci il cambio di market resettando l'employee
   const handleMarketChange = (e: SelectChangeEvent) => {
     setMarketId(e.target.value);
-    setEmployeeId(""); // Reset employee quando cambia il market
+    setEmployeeId("");
   };
 
   return (
     <Box sx={{ width: "100%", p: 3 }}>
+      <Button
+        onClick={() => navigate(-1)}
+        variant="contained"
+        sx={{
+          marginBottom: "20px",
+          padding: "10px 15px",
+          backgroundColor: "#C62828",
+          color: "white",
+          borderRadius: "12px",
+          textTransform: "none",
+          "&:hover": {
+            backgroundColor: "#9b2020",
+          },
+        }}
+      >
+        ← Torna indietro
+      </Button>
+
       <LocalizationProvider dateAdapter={AdapterMoment}>
         <Stack direction="row" spacing={2} sx={{ mb: 3 }}>
-          {/* Select Supermercato */}
           <FormControl sx={{ minWidth: 220 }}>
             <InputLabel id="market-select-label">Supermercato</InputLabel>
             <Select
@@ -158,7 +186,6 @@ const ShiftsDataGrid = () => {
             </Select>
           </FormControl>
 
-          {/* Select Dipendente */}
           <FormControl sx={{ minWidth: 220 }}>
             <InputLabel id="employee-select-label">Dipendente</InputLabel>
             <Select
@@ -166,7 +193,7 @@ const ShiftsDataGrid = () => {
               id="employee-select"
               value={employeeId}
               onChange={(e: SelectChangeEvent) => setEmployeeId(e.target.value)}
-              disabled={!marketId} // Disabilita se non è selezionato un market
+              disabled={!marketId}
             >
               {employees
                 .filter((emp) =>
@@ -185,14 +212,12 @@ const ShiftsDataGrid = () => {
             </Select>
           </FormControl>
 
-          {/* DatePicker Start */}
           <DatePicker
             label="Data Inizio"
             value={startDate}
             onChange={setStartDate}
           />
 
-          {/* DatePicker End */}
           <DatePicker label="Data Fine" value={endDate} onChange={setEndDate} />
 
           <Button
