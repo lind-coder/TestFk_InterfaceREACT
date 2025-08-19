@@ -13,7 +13,7 @@ import {
 import moment from "moment";
 import { fetchShiftsByRange } from "../Fetch/FetchShiftsByRange";
 import { fetchShiftsByEmployeeAndRange } from "../Fetch/FetchShiftsByEmployeeAndRange";
-import { getEmployeesWithShifts } from "../Fetch/FetchEmployeeWithShifts"; // AGGIUNGI QUESTA RIGA
+import { getEmployeesWithShifts } from "../Fetch/FetchEmployeeWithShifts";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
@@ -67,7 +67,7 @@ const ShiftsDataGrid = () => {
   // fetch markets + employees
   useEffect(() => {
     axios
-      .get<Market[]>("https://localhost:7226/api/Market/getAll")
+      .get<Market[]>("https://localhost:7226/getAllMarket")
       .then((res) => setMarkets(res.data))
       .catch(() => setMarkets([]));
 
@@ -128,6 +128,12 @@ const ShiftsDataGrid = () => {
     setShifts([]);
   };
 
+  // Gestisci il cambio di market resettando l'employee
+  const handleMarketChange = (e: SelectChangeEvent) => {
+    setMarketId(e.target.value);
+    setEmployeeId(""); // Reset employee quando cambia il market
+  };
+
   return (
     <Box sx={{ width: "100%", p: 3 }}>
       <LocalizationProvider dateAdapter={AdapterMoment}>
@@ -139,7 +145,7 @@ const ShiftsDataGrid = () => {
               labelId="market-select-label"
               id="market-select"
               value={marketId}
-              onChange={(e: SelectChangeEvent) => setMarketId(e.target.value)}
+              onChange={handleMarketChange}
             >
               {markets.map((market) => (
                 <MenuItem
@@ -160,6 +166,7 @@ const ShiftsDataGrid = () => {
               id="employee-select"
               value={employeeId}
               onChange={(e: SelectChangeEvent) => setEmployeeId(e.target.value)}
+              disabled={!marketId} // Disabilita se non è selezionato un market
             >
               {employees
                 .filter((emp) =>
