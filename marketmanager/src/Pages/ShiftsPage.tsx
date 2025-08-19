@@ -9,6 +9,7 @@ import {
   InputLabel,
   Select,
   SelectChangeEvent,
+  colors,
 } from "@mui/material";
 import moment from "moment";
 import { fetchShiftsByEmployeeAndRange } from "../Fetch/FetchShiftsByEmployeeAndRange";
@@ -137,8 +138,8 @@ const ShiftsDataGrid = () => {
   };
 
   const handleReset = () => {
-    setStartDate(moment().subtract(30, "days"));
-    setEndDate(moment());
+    setStartDate(null); // Resetta a valore null
+    setEndDate(null); // Resetta a valore null
     setEmployeeId("");
     setMarketId("");
     setShifts([]);
