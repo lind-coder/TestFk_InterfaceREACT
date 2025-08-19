@@ -9,7 +9,6 @@ import {
   InputLabel,
   Select,
   SelectChangeEvent,
-  colors,
 } from "@mui/material";
 import moment from "moment";
 import { fetchShiftsByEmployeeAndRange } from "../Fetch/FetchShiftsByEmployeeAndRange";
@@ -32,6 +31,30 @@ const redTheme = {
       backgroundColor: "rgba(198, 40, 40, 0.5)",
       color: "white",
     },
+  },
+};
+
+// Stili riutilizzabili per Select e DatePicker
+const whiteComponentStyles = {
+  backgroundColor: "white",
+  "& .MuiOutlinedInput-notchedOutline": {
+    borderColor: "#C62828",
+  },
+  "&:hover .MuiOutlinedInput-notchedOutline": {
+    borderColor: "#8E0000",
+  },
+  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+    borderColor: "#C62828",
+  },
+  "& .MuiSvgIcon-root": {
+    color: "#C62828",
+  },
+};
+
+const whiteLabelStyles = {
+  color: "#C62828",
+  "&.Mui-focused": {
+    color: "#8E0000",
   },
 };
 
@@ -59,7 +82,7 @@ const ShiftsDataGrid = () => {
   const [shifts, setShifts] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [startDate, setStartDate] = useState<moment.Moment | null>(
-    moment().subtract(30, "days") // Imposta automaticamente gli ultimi 30 giorni
+    moment().subtract(30, "days")
   );
   const [endDate, setEndDate] = useState<moment.Moment | null>(moment());
   const [marketId, setMarketId] = useState<string>(urlMarketId || "");
@@ -85,7 +108,6 @@ const ShiftsDataGrid = () => {
         )
         .then((res) => {
           setEmployees(res.data);
-          // Se c'è un employeeId nella URL ma non è nella lista, lo resettiamo
           if (
             urlEmployeeId &&
             !res.data.some((e) => e.employee_ID.toString() === urlEmployeeId)
@@ -138,8 +160,8 @@ const ShiftsDataGrid = () => {
   };
 
   const handleReset = () => {
-    setStartDate(null); // Resetta a valore null
-    setEndDate(null); // Resetta a valore null
+    setStartDate(null);
+    setEndDate(null);
     setEmployeeId("");
     setMarketId("");
     setShifts([]);
@@ -148,12 +170,10 @@ const ShiftsDataGrid = () => {
 
   const handleMarketChange = (e: SelectChangeEvent) => {
     setMarketId(e.target.value);
-    // Il cambio di employee verrà gestito automaticamente dall'useEffect
   };
 
   const handleEmployeeChange = (e: SelectChangeEvent) => {
     setEmployeeId(e.target.value);
-    // Il filtro verrà eseguito automaticamente dall'useEffect
   };
 
   return (
@@ -178,13 +198,17 @@ const ShiftsDataGrid = () => {
 
       <LocalizationProvider dateAdapter={AdapterMoment}>
         <Stack direction="row" spacing={2} sx={{ mb: 3 }}>
+          {/* Select Supermercato */}
           <FormControl sx={{ minWidth: 220 }}>
-            <InputLabel id="market-select-label">Supermercato</InputLabel>
+            <InputLabel id="market-select-label" sx={whiteLabelStyles}>
+              Supermercato
+            </InputLabel>
             <Select
               labelId="market-select-label"
               id="market-select"
               value={marketId}
               onChange={handleMarketChange}
+              sx={whiteComponentStyles}
             >
               {markets.map((market) => (
                 <MenuItem
@@ -197,14 +221,18 @@ const ShiftsDataGrid = () => {
             </Select>
           </FormControl>
 
+          {/* Select Dipendente */}
           <FormControl sx={{ minWidth: 220 }}>
-            <InputLabel id="employee-select-label">Dipendente</InputLabel>
+            <InputLabel id="employee-select-label" sx={whiteLabelStyles}>
+              Dipendente
+            </InputLabel>
             <Select
               labelId="employee-select-label"
               id="employee-select"
               value={employeeId}
               onChange={handleEmployeeChange}
               disabled={!marketId}
+              sx={whiteComponentStyles}
             >
               {employees.map((emp) => (
                 <MenuItem
@@ -217,13 +245,45 @@ const ShiftsDataGrid = () => {
             </Select>
           </FormControl>
 
+          {/* DatePicker Inizio */}
           <DatePicker
             label="Data Inizio"
             value={startDate}
             onChange={setStartDate}
+            sx={{
+              ...whiteComponentStyles,
+              "& .MuiInputBase-input": {
+                color: "black",
+              },
+            }}
+            slotProps={{
+              textField: {
+                InputLabelProps: {
+                  sx: whiteLabelStyles,
+                },
+              },
+            }}
           />
 
-          <DatePicker label="Data Fine" value={endDate} onChange={setEndDate} />
+          {/* DatePicker Fine */}
+          <DatePicker
+            label="Data Fine"
+            value={endDate}
+            onChange={setEndDate}
+            sx={{
+              ...whiteComponentStyles,
+              "& .MuiInputBase-input": {
+                color: "black",
+              },
+            }}
+            slotProps={{
+              textField: {
+                InputLabelProps: {
+                  sx: whiteLabelStyles,
+                },
+              },
+            }}
+          />
 
           <Button
             variant="contained"
