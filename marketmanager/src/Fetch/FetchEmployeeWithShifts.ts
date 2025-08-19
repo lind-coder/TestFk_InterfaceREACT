@@ -14,7 +14,7 @@ export const getEmployeesWithShifts = async (): Promise<
     surname: e.Surname,
     supermarket: e.Supermarket
       ? {
-          supermarket_ID: e.Supermarket.Supermarket_ID, // Aggiungi questo campo
+          supermarket_ID: e.Supermarket.Supermarket_ID,
           name: e.Supermarket.Name,
         }
       : null,

@@ -10,8 +10,8 @@ export const fetchShiftsByEmployeeAndRange = async (
     {
       params: {
         employeeId,
-        startDate, // Cambiato da Startdate a startDate
-        endDate, // Cambiato da Enddate a endDate
+        startDate,
+        endDate,
       },
     }
   );

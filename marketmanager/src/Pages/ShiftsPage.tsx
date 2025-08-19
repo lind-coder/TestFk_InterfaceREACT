@@ -11,15 +11,13 @@ import {
   SelectChangeEvent,
 } from "@mui/material";
 import moment from "moment";
-import { fetchShiftsByRange } from "../Fetch/FetchShiftsByRange";
 import { fetchShiftsByEmployeeAndRange } from "../Fetch/FetchShiftsByEmployeeAndRange";
-import { getEmployeesWithShifts } from "../Fetch/FetchEmployeeWithShifts";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import axios from "axios";
 import { Market } from "../Types/Market";
-import { EmployeeWithShifts } from "../Types/EmployeeWithShifts";
+import { Employee } from "../Types/Employee";
 import { useNavigate, useParams } from "react-router-dom";
 
 const redTheme = {
@@ -60,56 +58,68 @@ const ShiftsDataGrid = () => {
   const [shifts, setShifts] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [startDate, setStartDate] = useState<moment.Moment | null>(
-    moment().subtract(30, "days")
+    moment().subtract(30, "days") // Imposta automaticamente gli ultimi 30 giorni
   );
   const [endDate, setEndDate] = useState<moment.Moment | null>(moment());
   const [marketId, setMarketId] = useState<string>(urlMarketId || "");
   const [employeeId, setEmployeeId] = useState<string>(urlEmployeeId || "");
   const [markets, setMarkets] = useState<Market[]>([]);
-  const [employees, setEmployees] = useState<EmployeeWithShifts[]>([]);
+  const [employees, setEmployees] = useState<Employee[]>([]);
   const navigate = useNavigate();
 
-  // fetch markets + employees
+  // Fetch iniziale dei mercati
   useEffect(() => {
     axios
       .get<Market[]>("https://localhost:7226/getAllMarket")
       .then((res) => setMarkets(res.data))
       .catch(() => setMarkets([]));
-
-    getEmployeesWithShifts()
-      .then((data) => setEmployees(data))
-      .catch(() => setEmployees([]));
   }, []);
 
-  // Esegui automaticamente il filtro se abbiamo entrambi gli ID dalla URL
+  // Fetch dei dipendenti quando cambia il marketId
   useEffect(() => {
-    if (urlMarketId && urlEmployeeId && startDate && endDate) {
+    if (marketId) {
+      axios
+        .get<Employee[]>(
+          `https://localhost:7226/api/Employee/GetEmployeesByMarket/${marketId}`
+        )
+        .then((res) => {
+          setEmployees(res.data);
+          // Se c'è un employeeId nella URL ma non è nella lista, lo resettiamo
+          if (
+            urlEmployeeId &&
+            !res.data.some((e) => e.employee_ID.toString() === urlEmployeeId)
+          ) {
+            setEmployeeId("");
+          }
+        })
+        .catch(() => setEmployees([]));
+    } else {
+      setEmployees([]);
+      setEmployeeId("");
+    }
+  }, [marketId, urlEmployeeId]);
+
+  // Esegui automaticamente il filtro quando abbiamo un employeeId valido
+  useEffect(() => {
+    if (employeeId && startDate && endDate) {
       handleFilter();
     }
-  }, [urlMarketId, urlEmployeeId, startDate, endDate]);
+  }, [employeeId, startDate, endDate]);
 
   const handleFilter = async () => {
-    if (!startDate || !endDate) {
-      alert("Seleziona entrambe le date");
-      return;
-    }
+    if (!employeeId || !startDate || !endDate) return;
 
     setLoading(true);
     try {
       const start = startDate.startOf("day").format("YYYY-MM-DDTHH:mm:ss");
       const end = endDate.endOf("day").format("YYYY-MM-DDTHH:mm:ss");
+      const employeeIdNum = parseInt(employeeId);
 
-      let data;
-
-      if (employeeId.trim()) {
-        const employeeIdNum = parseInt(employeeId);
-        if (isNaN(employeeIdNum)) {
-          throw new Error("ID dipendente deve essere un numero valido");
-        }
-        data = await fetchShiftsByEmployeeAndRange(employeeIdNum, start, end);
-      } else {
-        data = await fetchShiftsByRange(start, end);
-      }
+      const data = await fetchShiftsByEmployeeAndRange(
+        employeeIdNum,
+        start,
+        end
+      );
 
       const formattedData = data.map((shift: any) => ({
         ...shift,
@@ -120,11 +130,6 @@ const ShiftsDataGrid = () => {
       setShifts(formattedData);
     } catch (error) {
       console.error("Errore durante il fetch:", error);
-      alert(
-        error instanceof Error
-          ? error.message
-          : "Errore durante il recupero dei dati"
-      );
       setShifts([]);
     } finally {
       setLoading(false);
@@ -142,7 +147,12 @@ const ShiftsDataGrid = () => {
 
   const handleMarketChange = (e: SelectChangeEvent) => {
     setMarketId(e.target.value);
-    setEmployeeId("");
+    // Il cambio di employee verrà gestito automaticamente dall'useEffect
+  };
+
+  const handleEmployeeChange = (e: SelectChangeEvent) => {
+    setEmployeeId(e.target.value);
+    // Il filtro verrà eseguito automaticamente dall'useEffect
   };
 
   return (
@@ -192,23 +202,17 @@ const ShiftsDataGrid = () => {
               labelId="employee-select-label"
               id="employee-select"
               value={employeeId}
-              onChange={(e: SelectChangeEvent) => setEmployeeId(e.target.value)}
+              onChange={handleEmployeeChange}
               disabled={!marketId}
             >
-              {employees
-                .filter((emp) =>
-                  marketId
-                    ? emp.supermarket?.supermarket_ID === Number(marketId)
-                    : true
-                )
-                .map((emp) => (
-                  <MenuItem
-                    key={emp.employee_ID}
-                    value={emp.employee_ID.toString()}
-                  >
-                    {emp.name} {emp.surname}
-                  </MenuItem>
-                ))}
+              {employees.map((emp) => (
+                <MenuItem
+                  key={emp.employee_ID}
+                  value={emp.employee_ID.toString()}
+                >
+                  {emp.name} {emp.surname}
+                </MenuItem>
+              ))}
             </Select>
           </FormControl>
 
@@ -225,7 +229,7 @@ const ShiftsDataGrid = () => {
             onClick={handleFilter}
             sx={redTheme.button}
             size="large"
-            disabled={!startDate || !endDate}
+            disabled={!employeeId || !startDate || !endDate}
           >
             Filtra
           </Button>
