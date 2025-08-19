@@ -9,6 +9,7 @@ import {
   InputLabel,
   Select,
   SelectChangeEvent,
+  Alert,
 } from "@mui/material";
 import moment from "moment";
 import { fetchShiftsByEmployeeAndRange } from "../Fetch/FetchShiftsByEmployeeAndRange";
@@ -89,7 +90,36 @@ const ShiftsDataGrid = () => {
   const [employeeId, setEmployeeId] = useState<string>(urlEmployeeId || "");
   const [markets, setMarkets] = useState<Market[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
+  const [dateError, setDateError] = useState<string>("");
   const navigate = useNavigate();
+
+  // Funzione per validare il range di date
+  const validateDateRange = (
+    start: moment.Moment | null,
+    end: moment.Moment | null
+  ): boolean => {
+    if (!start || !end) return false;
+
+    const diffDays = end.diff(start, "days");
+    if (diffDays > 30) {
+      setDateError("Il range di date non può superare i 30 giorni");
+      return false;
+    }
+
+    setDateError("");
+    return true;
+  };
+
+  // Funzione per disabilitare le date oltre il limite di 30 giorni
+  const shouldDisableEndDate = (date: moment.Moment) => {
+    if (!startDate) return false;
+    return date.diff(startDate, "days") > 30;
+  };
+
+  const shouldDisableStartDate = (date: moment.Moment) => {
+    if (!endDate) return false;
+    return endDate.diff(date, "days") > 30;
+  };
 
   // Fetch iniziale dei mercati
   useEffect(() => {
@@ -122,15 +152,24 @@ const ShiftsDataGrid = () => {
     }
   }, [marketId, urlEmployeeId]);
 
+  // Validazione automatica quando cambiano le date
+  useEffect(() => {
+    if (startDate && endDate) {
+      validateDateRange(startDate, endDate);
+    } else {
+      setDateError("");
+    }
+  }, [startDate, endDate]);
+
   // Esegui automaticamente il filtro quando abbiamo un employeeId valido
   useEffect(() => {
-    if (employeeId && startDate && endDate) {
+    if (employeeId && startDate && endDate && !dateError) {
       handleFilter();
     }
   }, [employeeId, startDate, endDate]);
 
   const handleFilter = async () => {
-    if (!employeeId || !startDate || !endDate) return;
+    if (!employeeId || !startDate || !endDate || dateError) return;
 
     setLoading(true);
     try {
@@ -160,11 +199,12 @@ const ShiftsDataGrid = () => {
   };
 
   const handleReset = () => {
-    setStartDate(null);
-    setEndDate(null);
+    setStartDate(moment().subtract(30, "days"));
+    setEndDate(moment());
     setEmployeeId("");
     setMarketId("");
     setShifts([]);
+    setDateError("");
     navigate("/shifts");
   };
 
@@ -174,6 +214,24 @@ const ShiftsDataGrid = () => {
 
   const handleEmployeeChange = (e: SelectChangeEvent) => {
     setEmployeeId(e.target.value);
+  };
+
+  const handleStartDateChange = (date: moment.Moment | null) => {
+    setStartDate(date);
+    // Se c'è una data di fine e la nuova data di inizio crea un range > 30 giorni,
+    // resetta la data di fine
+    if (date && endDate && endDate.diff(date, "days") > 30) {
+      setEndDate(date.clone().add(30, "days"));
+    }
+  };
+
+  const handleEndDateChange = (date: moment.Moment | null) => {
+    setEndDate(date);
+    // Se c'è una data di inizio e la nuova data di fine crea un range > 30 giorni,
+    // resetta la data di inizio
+    if (date && startDate && date.diff(startDate, "days") > 30) {
+      setStartDate(date.clone().subtract(30, "days"));
+    }
   };
 
   return (
@@ -249,7 +307,8 @@ const ShiftsDataGrid = () => {
           <DatePicker
             label="Data Inizio"
             value={startDate}
-            onChange={setStartDate}
+            onChange={handleStartDateChange}
+            shouldDisableDate={shouldDisableStartDate}
             sx={{
               ...whiteComponentStyles,
               "& .MuiInputBase-input": {
@@ -269,7 +328,8 @@ const ShiftsDataGrid = () => {
           <DatePicker
             label="Data Fine"
             value={endDate}
-            onChange={setEndDate}
+            onChange={handleEndDateChange}
+            shouldDisableDate={shouldDisableEndDate}
             sx={{
               ...whiteComponentStyles,
               "& .MuiInputBase-input": {
@@ -290,7 +350,7 @@ const ShiftsDataGrid = () => {
             onClick={handleFilter}
             sx={redTheme.button}
             size="large"
-            disabled={!employeeId || !startDate || !endDate}
+            disabled={!employeeId || !startDate || !endDate || !!dateError}
           >
             Filtra
           </Button>
@@ -303,6 +363,13 @@ const ShiftsDataGrid = () => {
             Reset
           </Button>
         </Stack>
+
+        {/* Messaggio di errore per il range di date */}
+        {dateError && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {dateError}
+          </Alert>
+        )}
       </LocalizationProvider>
       <Box sx={{ height: 500, mb: 2 }}>
         <DataGrid
