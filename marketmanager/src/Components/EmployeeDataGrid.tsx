@@ -20,7 +20,7 @@ const columns: GridColDef[] = [
 
 export const EmployeeDataGrid = () => {
   const [employees, setEmployees] = useState<EmployeeWithShifts[]>([]);
-  const navigate = useNavigate(); // <-- inizializza navigate
+  const navigate = useNavigate();
 
   useEffect(() => {
     getEmployeesWithShifts()

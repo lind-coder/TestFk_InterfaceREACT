@@ -5,7 +5,6 @@ import MarketsPage from "./Pages/SupermarketPage";
 import MarketEmployeesPage from "./Pages/EmployeesMarketPage";
 import EmployeeDetailPage from "./Pages/EmployeeShiftDetailPage";
 import ShiftsDataGrid from "./Pages/ShiftsPage";
-import ContactsPage from "./Pages/ContactsPage";
 
 function App() {
   return (
@@ -24,7 +23,6 @@ function App() {
             element={<ShiftsDataGrid />}
           />
           <Route path="shifts" element={<ShiftsDataGrid />} />
-          <Route path="contacts" element={<ContactsPage />} />
         </Route>
       </Routes>
     </Router>

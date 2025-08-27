@@ -8,7 +8,7 @@ import { useState, useEffect } from "react";
 
 const drawerWidth = 200;
 
-const MainLayout: React.FC = () => {
+function MainLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const [selectedView, setSelectedView] = useState("Welcome");
@@ -88,6 +88,6 @@ const MainLayout: React.FC = () => {
       </Box>
     </Box>
   );
-};
+}
 
 export default MainLayout;

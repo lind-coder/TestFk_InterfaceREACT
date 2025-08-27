@@ -10,7 +10,7 @@ import HomeIcon from "@mui/icons-material/Home";
 import StoreIcon from "@mui/icons-material/Store";
 import PeopleIcon from "@mui/icons-material/People";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
-import ContactsIcon from "@mui/icons-material/Contacts";
+
 import { useNavigate } from "react-router-dom";
 
 interface Props {
@@ -63,7 +63,6 @@ const MySidebar = ({ drawerWidth, selectedView, setSelectedView }: Props) => {
 
         <ListItemButton
           selected={selectedView === "Employee"}
-          onClick={() => handleNavigation("Employee", "/employees")}
           sx={{ py: 2, borderRadius: 2 }}
         >
           <ListItemIcon sx={{ color: "#fff" }}>
@@ -81,17 +80,6 @@ const MySidebar = ({ drawerWidth, selectedView, setSelectedView }: Props) => {
             <AccessTimeIcon fontSize="large" />
           </ListItemIcon>
           <ListItemText primary="Turni" sx={{ color: "#fff" }} />
-        </ListItemButton>
-
-        <ListItemButton
-          selected={selectedView === "Contacts"}
-          onClick={() => handleNavigation("Contacts", "/contacts")}
-          sx={{ py: 2, borderRadius: 2 }}
-        >
-          <ListItemIcon sx={{ color: "#fff" }}>
-            <ContactsIcon fontSize="large" />
-          </ListItemIcon>
-          <ListItemText primary="Contatti" sx={{ color: "#fff" }} />
         </ListItemButton>
       </List>
     </Box>
