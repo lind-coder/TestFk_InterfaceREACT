@@ -58,22 +58,26 @@ const whiteLabelStyles = {
   },
 };
 
-const columns: GridColDef[] = [
-  { field: "shift_ID", headerName: "ID Turno", width: 300 },
-  {
-    field: "startDateFormatted",
-    headerName: "Inizio",
-    width: 300,
-  },
-  {
-    field: "endDateFormatted",
-    headerName: "Fine",
-    width: 300,
-  },
-  { field: "username", headerName: "Username Dipendente", width: 300 },
-  { field: "employee_ID", headerName: "ID Dipendente", width: 300 },
-  { field: "supermarketName", headerName: "Supermercato", width: 300 },
-];
+// Genera le colonne dinamicamente in base al mercato selezionato
+const getColumns = (marketSelected: string): GridColDef[] => {
+  const baseColumns: GridColDef[] = [
+    { field: "shift_ID", headerName: "ID Turno", width: 300 },
+    { field: "startDateFormatted", headerName: "Inizio", width: 300 },
+    { field: "endDateFormatted", headerName: "Fine", width: 300 },
+    { field: "username", headerName: "Username Dipendente", width: 300 },
+    { field: "employee_ID", headerName: "ID Dipendente", width: 300 },
+  ];
+
+  if (!marketSelected) {
+    baseColumns.push({
+      field: "supermarketName",
+      headerName: "Supermercato",
+      width: 300,
+    });
+  }
+
+  return baseColumns;
+};
 
 const ShiftsDataGrid = () => {
   const { marketId: urlMarketId, employeeId: urlEmployeeId } = useParams<{
@@ -143,8 +147,10 @@ const ShiftsDataGrid = () => {
         })
         .catch(() => setEmployees([]));
     } else {
-      setEmployees([]);
-      setEmployeeId("");
+      axios
+        .get<Employee[]>(`https://localhost:7226/api/Employee/GetAllEmployees`)
+        .then((res) => setEmployees(res.data))
+        .catch(() => setEmployees([]));
     }
   }, [marketId, urlEmployeeId]);
 
@@ -155,6 +161,8 @@ const ShiftsDataGrid = () => {
       setDateError("");
     }
   }, [startDate, endDate]);
+
+  //logica
 
   const handleFilter = async () => {
     if (!startDate || !endDate || dateError) return;
@@ -188,7 +196,7 @@ const ShiftsDataGrid = () => {
         ...shift,
         startDateFormatted: moment(shift.startDate).format("DD/MM/YYYY HH:mm"),
         endDateFormatted: moment(shift.endDate).format("DD/MM/YYYY HH:mm"),
-        supermarketName: shift.supermarketName, // ← nuova
+        supermarketName: shift.supermarketName,
       }));
 
       setShifts(formattedData);
@@ -285,7 +293,6 @@ const ShiftsDataGrid = () => {
               id="employee-select"
               value={employeeId}
               onChange={handleEmployeeChange}
-              disabled={!marketId}
               sx={whiteComponentStyles}
             >
               {employees.map((emp) => (
@@ -364,10 +371,11 @@ const ShiftsDataGrid = () => {
           </Alert>
         )}
       </LocalizationProvider>
+
       <Box sx={{ height: 500, mb: 2 }}>
         <DataGrid
           rows={shifts}
-          columns={columns}
+          columns={getColumns(marketId)}
           getRowId={(row) => row.shift_ID}
           loading={loading}
           hideFooterPagination
