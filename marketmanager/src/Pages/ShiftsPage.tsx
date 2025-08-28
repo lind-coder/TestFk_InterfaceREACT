@@ -58,7 +58,7 @@ const whiteLabelStyles = {
   },
 };
 
-// Genera le colonne dinamicamente in base al mercato selezionato
+// Genera le colonne dinamicamente in base al market
 const getColumns = (marketSelected: string): GridColDef[] => {
   const baseColumns: GridColDef[] = [
     { field: "shift_ID", headerName: "ID Turno", width: 300 },
@@ -78,7 +78,7 @@ const getColumns = (marketSelected: string): GridColDef[] => {
 
   return baseColumns;
 };
-
+//rifare
 const ShiftsDataGrid = () => {
   const { marketId: urlMarketId, employeeId: urlEmployeeId } = useParams<{
     marketId?: string;
@@ -154,6 +154,7 @@ const ShiftsDataGrid = () => {
     }
   }, [marketId, urlEmployeeId]);
 
+  //logica date
   useEffect(() => {
     if (startDate && endDate) {
       validateDateRange(startDate, endDate);
@@ -161,8 +162,6 @@ const ShiftsDataGrid = () => {
       setDateError("");
     }
   }, [startDate, endDate]);
-
-  //logica
 
   const handleFilter = async () => {
     if (!startDate || !endDate || dateError) return;

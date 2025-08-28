@@ -11,7 +11,7 @@ const shiftsColumns: GridColDef[] = [
   { field: "endDate", headerName: "Data Fine", width: 300 },
 ];
 
-export default function EmployeeDetailPage() {
+export default function EmployeeShiftDetailPage() {
   const { employeeId } = useParams<{ employeeId?: string }>();
   const navigate = useNavigate();
 

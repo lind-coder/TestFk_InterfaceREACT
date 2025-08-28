@@ -3,8 +3,8 @@ import MainLayout from "./Components/MainLayout";
 import WelcomeScreen from "./Components/WelcomeScreen";
 import MarketsPage from "./Pages/SupermarketPage";
 import MarketEmployeesPage from "./Pages/EmployeesMarketPage";
-import EmployeeDetailPage from "./Pages/EmployeeShiftDetailPage";
 import ShiftsDataGrid from "./Pages/ShiftsPage";
+import EmployeeShiftDetailPage from "./Pages/EmployeeShiftDetailPage";
 
 function App() {
   return (
@@ -17,7 +17,10 @@ function App() {
             path="market/:id/employees"
             element={<MarketEmployeesPage />}
           />
-          <Route path="employee/:employeeId" element={<EmployeeDetailPage />} />
+          <Route
+            path="employee/:employeeId"
+            element={<EmployeeShiftDetailPage />}
+          />
           <Route
             path="/shifts/:marketId/:employeeId"
             element={<ShiftsDataGrid />}
