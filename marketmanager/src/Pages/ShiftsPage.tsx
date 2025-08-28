@@ -59,19 +59,20 @@ const whiteLabelStyles = {
 };
 
 const columns: GridColDef[] = [
-  { field: "shift_ID", headerName: "ID Turno", width: 200 },
+  { field: "shift_ID", headerName: "ID Turno", width: 300 },
   {
     field: "startDateFormatted",
     headerName: "Inizio",
-    width: 400,
+    width: 300,
   },
   {
     field: "endDateFormatted",
     headerName: "Fine",
-    width: 400,
+    width: 300,
   },
-  { field: "username", headerName: "Username Dipendente", width: 400 },
-  { field: "employee_ID", headerName: "ID Dipendente", width: 200 },
+  { field: "username", headerName: "Username Dipendente", width: 300 },
+  { field: "employee_ID", headerName: "ID Dipendente", width: 300 },
+  { field: "supermarketName", headerName: "Supermercato", width: 300 },
 ];
 
 const ShiftsDataGrid = () => {
@@ -187,6 +188,7 @@ const ShiftsDataGrid = () => {
         ...shift,
         startDateFormatted: moment(shift.startDate).format("DD/MM/YYYY HH:mm"),
         endDateFormatted: moment(shift.endDate).format("DD/MM/YYYY HH:mm"),
+        supermarketName: shift.supermarketName, // ← nuova
       }));
 
       setShifts(formattedData);
