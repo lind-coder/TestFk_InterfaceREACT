@@ -1,15 +1,14 @@
 import { AppProvider } from "@toolpad/core/AppProvider";
 import { SignInPage, type AuthProvider } from "@toolpad/core";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
+import StorefrontOutlinedIcon from "@mui/icons-material/StorefrontOutlined";
 
 const providers = [{ id: "credentials", name: "Credentials" }];
 
 const BRANDING = {
   logo: (
-    <img
-      src="https://mui.com/static/logo.svg"
-      alt="MUI logo"
-      style={{ height: 24 }}
+    <StorefrontOutlinedIcon
+      sx={{ color: "rgb(198, 40, 40)", width: "45px", height: "45px" }}
     />
   ),
   title: "GestMarket",
@@ -19,14 +18,14 @@ const BRANDING = {
 const redTheme = createTheme({
   palette: {
     background: {
-      default: "rgb(198, 40, 40)", // sfondo rosso
+      default: "#C62828", // sfondo rosso
     },
   },
   components: {
     MuiButton: {
       styleOverrides: {
         root: {
-          backgroundColor: "rgb(198, 40, 40)",
+          backgroundColor: "#C62828",
           color: "white",
           "&:hover": {
             backgroundColor: "#8E0000", // rosso scuro hover

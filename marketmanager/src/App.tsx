@@ -5,11 +5,13 @@ import MarketsPage from "./Pages/SupermarketPage";
 import MarketEmployeesPage from "./Pages/EmployeesMarketPage";
 import ShiftsDataGrid from "./Pages/ShiftsPage";
 import EmployeeShiftDetailPage from "./Pages/EmployeeShiftDetailPage";
+import GestMarketSignInPage from "./Pages/SignInPage";
 
 function App() {
   return (
     <Router>
       <Routes>
+        <Route path="/login" element={<GestMarketSignInPage />}></Route>
         <Route path="/" element={<MainLayout />}>
           <Route index element={<WelcomeScreen />} />
           <Route path="markets" element={<MarketsPage />} />
